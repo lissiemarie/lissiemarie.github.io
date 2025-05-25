@@ -1,15 +1,25 @@
 {
   "name": "petbagcapstoneproject",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "description": "Pet BAG Capstone – Express server + browser‐sync live front-end",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
+    "dev": "vite public --open",
+    "serve": "browser-sync start --server public --files \"public/**/*.html\" \"public/css/*.css\" \"public/js/*.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^6.8.0"
+  },
   "devDependencies": {
-    "eslint": "^9.26.0"
+    "browser-sync": "^3.0.4",
+    "eslint": "^9.26.0",
+    "nodemon": "^3.1.10",
+    "vite": "^6.3.5"
   }
 }

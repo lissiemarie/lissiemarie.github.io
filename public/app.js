@@ -1,6 +1,7 @@
 import { Pet } from './pet.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 1) Create Pet
     const p = new Pet();
     p.petType = 'Cat';
     p.petName = 'Whiskers';
@@ -8,29 +9,29 @@ document.addEventListener('DOMContentLoaded', () => {
     p.daysStay = 3;
     p.amountDue = 120.00;
 
-    const app = document.getElementById('app');
+    // 2) Grab static elements
+    const titleEl = document.getElementById('pet-title');
+    const detailsUl = document.getElementById('pet-details');
 
-    // Clear any previous content
-    app.innerHTML = '';
+    // 3) Fill in the title
+    titleEl.textContent = `Pet Boarding Summary for ${p.petName}`;
 
-    // Create and append a header
-    const h1 = document.createElement('h1');
-    h1.textContent = `Pet Boarding Summary for ${p.petName}`;
-    app.appendChild(h1);
-
-    // Build a list of pet details
-    const ul = document.createElement('ul');
-    [
+    // 4) Define the details to show
+    const details = [
         `Type: ${p.petType}`,
         `Age: ${p.petAge}`,
         `Dog Spaces: ${p.dogSpaces}`,
         `Cat Spaces: ${p.catSpaces}`,
         `Days Stay: ${p.daysStay}`,
         `Amount Due: $${p.amountDue.toFixed(2)}`
-    ].forEach(text => {
+    ];
+
+    // 5) Inject <li> items
+    detailsUl.innerHTML = '';            // clear any old items
+    details.forEach(text => {
         const li = document.createElement('li');
         li.textContent = text;
-        ul.appendChild(li);
+        detailsUl.appendChild(li);
     });
-    app.appendChild(ul);
 });
+

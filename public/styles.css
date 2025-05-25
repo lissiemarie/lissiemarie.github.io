@@ -1,21 +1,81 @@
-/* Simple reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+:root {
+    /* Core palette */
+    --black: #000000;
+    --dark-green: #476F4D;
+    --green: #6BB071;
+    --light-green: #B2DDA5;
+    --pale-green: #E8F9DF;
+
+    /* Semantic names */
+    --color-bg: var(--pale-green);
+    --color-card: var(--light-green);
+    --color-accent: var(--green);
+    --color-nav: var(--dark-green);
+    --color-text: var(--black);
 }
 
-/* Base styles */
 body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
     font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    color: #333;
-    line-height: 1.6;
-    padding: 20px;
 }
 
-/* Container for app */
-#app {
-    max-width: 800px;
+header, footer {
+    background-color: var(--color-nav);
+    color: white;
+    padding: 1rem;
+}
+
+/*Header Logo*/
+#site-logo {
+    width: 200px;
+    height: auto;
+    object-fit: contain;
+    display: block;
     margin: 0 auto;
+    padding: 0.5rem 0;
+    border-radius: 45%;
+}
+
+.container {
+    max-width: 800px;
+    margin: 2rem auto;
+    background-color: var(--color-card);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+}
+
+button, .btn {
+    background-color: var(--color-accent);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+    button:hover, .btn:hover {
+        background-color: var(--dark-green);
+    }
+
+/* Links */
+a {
+    color: var(--color-accent);
+    text-decoration: none;
+}
+
+    a:hover {
+        color: var(--dark-green);
+        text-decoration: underline;
+    }
+
+/* Card component */
+.card {
+    background: white;
+    border: 1px solid var(--light-green);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
