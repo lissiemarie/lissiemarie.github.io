@@ -6,15 +6,18 @@
     <PackageJsonDescription Condition="$(PackageJsonDescription) == ''">Pet BAG Capstone – Express server + browser‐sync live front-end</PackageJsonDescription>
     <PackageJsonMain Condition="$(PackageJsonMain) == ''">server.js</PackageJsonMain>
     <PackageJsonType Condition="$(PackageJsonType) == ''">module</PackageJsonType>
-    <PackageJsonScriptsDev Condition="$(PackageJsonScriptsDev) == ''">vite public --open</PackageJsonScriptsDev>
-    <PackageJsonScriptsServe Condition="$(PackageJsonScriptsServe) == ''">browser-sync start --server public --files "public/**/*.html" "public/css/*.css" "public/js/*.js"</PackageJsonScriptsServe>
+    <PackageJsonScriptsDevClient Condition="$(PackageJsonScriptsDevClient) == ''">vite docs --open</PackageJsonScriptsDevClient>
+    <PackageJsonScriptsDevServer Condition="$(PackageJsonScriptsDevServer) == ''">nodemon server.js</PackageJsonScriptsDevServer>
+    <PackageJsonScriptsDev Condition="$(PackageJsonScriptsDev) == ''">concurrently "npm run dev:server" "npm run dev:client"</PackageJsonScriptsDev>
+    <PackageJsonScriptsServe Condition="$(PackageJsonScriptsServe) == ''">browser-sync start --server docs --files "docs/**/*.html" "docs/css/*.css" "docs/js/*.js"</PackageJsonScriptsServe>
     <PackageJsonScriptsTest Condition="$(PackageJsonScriptsTest) == ''">echo "Error: no test specified" &amp;&amp; exit 1</PackageJsonScriptsTest>
     <PackageJsonKeywords Condition="$(PackageJsonKeywords) == ''">[]</PackageJsonKeywords>
     <PackageJsonAuthor Condition="$(PackageJsonAuthor) == ''"></PackageJsonAuthor>
     <PackageJsonLicense Condition="$(PackageJsonLicense) == ''">ISC</PackageJsonLicense>
-    <PackageJsonDependenciesExpress Condition="$(PackageJsonDependenciesExpress) == ''">^5.1.0</PackageJsonDependenciesExpress>
+    <PackageJsonDependenciesExpress Condition="$(PackageJsonDependenciesExpress) == ''">^4.18.2</PackageJsonDependenciesExpress>
     <PackageJsonDependenciesMongoose Condition="$(PackageJsonDependenciesMongoose) == ''">^6.8.0</PackageJsonDependenciesMongoose>
     <PackageJsonDevdependenciesBrowserSync Condition="$(PackageJsonDevdependenciesBrowserSync) == ''">^3.0.4</PackageJsonDevdependenciesBrowserSync>
+    <PackageJsonDevdependenciesConcurrently Condition="$(PackageJsonDevdependenciesConcurrently) == ''">^7.6.0</PackageJsonDevdependenciesConcurrently>
     <PackageJsonDevdependenciesEslint Condition="$(PackageJsonDevdependenciesEslint) == ''">^9.26.0</PackageJsonDevdependenciesEslint>
     <PackageJsonDevdependenciesNodemon Condition="$(PackageJsonDevdependenciesNodemon) == ''">^3.1.10</PackageJsonDevdependenciesNodemon>
     <PackageJsonDevdependenciesVite Condition="$(PackageJsonDevdependenciesVite) == ''">^6.3.5</PackageJsonDevdependenciesVite>

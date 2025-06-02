@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barkside Boarding and Spa</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header>
+        <img id="site-logo" src="images/GPTLogoBarkside.png" alt="Barkside Boarding & Spa Logo" />
+    </header>
+    <main class="container">
+
+        <!-- Add Pet Form -->
+        <section class="card" id="add-pet-section">
+            <h2>Admit New Pet</h2>
+            <form id="addPetForm">
+                <label for="petType">Type:</label>
+                <select id="petType" required>
+                    <option value="dog">Dog</option>
+                    <option value="cat">Cat</option>
+                </select>
+                <label for="petName">Name:</label>
+                <input type="text" id="petName" required />
+                <label for="petAge">Age:</label>
+                <input type="number" id="petAge" min="0" required />
+                <label for="daysStay">Days Stay:</label>
+                <input type="number" id="daysStay" min="1" required />
+                <fieldset>
+                    <legend>Grooming Options:</legend>
+                    <label><input type="checkbox" name="grooming" value="bath" /> Bath</label>
+                    <label><input type="checkbox" name="grooming" value="nail trim" /> Nail Trim</label>
+                    <label><input type="checkbox" name="grooming" value="haircut" /> Haircut</label>
+                </fieldset>
+                <button type="submit">Admit Pet</button>
+            </form>
+        </section>
+
+        <!-- Search and Sort Section -->
+        <section class="card" id="search-sort-section">
+            <h2>Find Active Pets</h2>
+            <input type="text" id="searchInput" placeholder="Search by pet name" />
+            <select id="sortSelect">
+                <option value="">Sort by...</option>
+                <option value="petName">Name</option>
+                <option value="petAge">Age</option>
+                <option value="daysStay">Days Stay</option>
+            </select>
+            <button id="searchBtn" type="button">Search</button>
+        </section>
+
+        <!-- Pet List Section -->
+        <section class="card" id="pet-list-section">
+            <h2>Active Pets</h2>
+            <button id="showPetsBtn" type="button">Show Active Pets</button>
+            <div id="pet-list">
+                <!-- JS will inject pet cards here -->
+            </div>
+        </section>
+
+    </main>
+    <footer>
+        © 2025 Barkside Boarding & Spa
+    </footer>
+    <script type="module" src="app.js"></script>
+    <!-- Spa Services Modal -->
+    <div id="spaModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span id="spaModalClose" class="close">&times;</span>
+            <h2>Add Spa Services</h2>
+            <form id="spaModalForm">
+                <label><input type="checkbox" name="grooming" value="bath"> Bath</label>
+                <label><input type="checkbox" name="grooming" value="nail trim"> Nail Trim</label>
+                <label><input type="checkbox" name="grooming" value="haircut"> Haircut</label>
+                <button type="submit">Add Services</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
