@@ -80,33 +80,265 @@ a {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Modal styles */
+/* —————————————————————————————————————————————
+   Modal styling
+————————————————————————————————————————————— */
+/* Modal backdrop */
 .modal {
     position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background: rgba(0,0,0,0.4);
+    inset: 0; 
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1000;
 }
 
+/* Modal box */
 .modal-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    min-width: 300px;
+    background: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: grid;
+    gap: 1rem;
     position: relative;
 }
 
+/* Close “X” */
 .close {
     position: absolute;
-    right: 10px;
-    top: 10px;
-    font-size: 24px;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    color: var(--dark-green);
     cursor: pointer;
 }
+
+.modal-content h2 {
+    margin: 0;
+    color: var(--color-nav);
+    font-size: 1.25rem;
+}
+
+.modal-content p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+/* Form inside modal */
+.modal-content form {
+    display: grid;
+    gap: 0.75rem;
+}
+
+    .modal-content form label {
+        font-weight: 600;
+        color: var(--color-text);
+    }
+
+    .modal-content form input,
+    .modal-content form select {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+        .modal-content form input:focus,
+        .modal-content form select:focus {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(107, 176, 113, 0.3);
+            outline: none;
+        }
+
+    /* Modal buttons */
+    .modal-content form button {
+        justify-self: end;
+        padding: 0.5rem 1rem;
+        background-color: var(--color-accent);
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+        .modal-content form button:hover {
+            background-color: var(--dark-green);
+        }
+
+
+/* —————————————————————————————————————————————
+   Admit New Pet form
+————————————————————————————————————————————— */
+
+#add-pet-section form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+    #add-pet-section form input,
+    #add-pet-section form select,
+    #add-pet-section form button {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    #add-pet-section form label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: .25rem;
+        color: var(--color-nav);
+    }
+
+    #add-pet-section form input,
+    #add-pet-section form select {
+        padding: .5rem;
+        border: 1px solid #ccc;
+        border-radius: .25rem;
+        transition: border-color .2s, box-shadow .2s;
+        max-width: 300px;
+    }
+
+        /* Focus state */
+        #add-pet-section form input:focus,
+        #add-pet-section form select:focus {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(107, 176, 113, 0.3);
+            outline: none;
+        }
+
+    #add-pet-section form fieldset {
+        grid-column: 1 / -1;
+        border: 1px solid var(--color-accent);
+        border-radius: .25rem;
+        padding: 1rem;
+        margin: 0; 
+    }
+
+    #add-pet-section form legend {
+        padding: 0 .5rem;
+        font-weight: bold;
+        color: var(--color-nav);
+    }
+
+    #add-pet-section form fieldset label {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 1rem;
+        font-weight: normal;
+    }
+
+    #add-pet-section form fieldset input {
+        margin-right: .25rem;
+    }
+
+    #add-pet-section form button {
+        grid-column: 1 / -1;
+        padding: .75rem;
+        font-size: 1rem;
+        border-radius: .25rem;
+        background-color: var(--color-accent);
+        color: white;
+        transition: background-color .2s;
+    }
+
+        #add-pet-section form button:hover {
+            background-color: var(--dark-green);
+        }
+
+/* —————————————————————————————————————————————
+   Find Active Pets Section
+————————————————————————————————————————————— */
+#search-sort-section {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+}
+
+    #search-sort-section h2 {
+        flex-basis: 100%;
+        margin: 0 0 0.5rem 0;
+    }
+
+    #search-sort-section input[type="text"] {
+        flex: 1;
+        min-width: 150px;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+    }
+
+    #search-sort-section select {
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+    }
+
+#searchBtn {
+    margin-left: auto;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--color-accent);
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    #searchBtn:hover {
+        background-color: var(--dark-green);
+    }
+
+
+/* —————————————————————————————————————————————
+   Pet-card styling (search results & active list)
+————————————————————————————————————————————— */
+.pet-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+    .pet-card h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        color: var(--color-nav);
+    }
+
+    .pet-card p {
+        margin: 0.25rem 0;
+    }
+
+    .pet-card ul {
+        margin: 0.5rem 0;
+        padding-left: 1.25rem;
+    }
+
+    .pet-card li {
+        margin: 0.25rem 0;
+    }
+
+    .pet-card .delete-spa-btn {
+        margin-left: 1rem;
+    }
+
+    .pet-card .btn-group {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
+
+        .pet-card .btn-group button {
+            /* reuse button styles */
+        }
+

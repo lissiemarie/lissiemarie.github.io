@@ -1,8 +1,10 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import mongoose from "mongoose";
 
 import { Pet } from "./server/models/Pet.js";
+import { Waitlist } from "./server/models/Waitlist.js";
 
 const app = express();
 const PORT = 3000;
@@ -10,18 +12,13 @@ const PORT = 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-console.log("Registering middleware: express.json()");
+// Middleware
 app.use(express.json());
-
-console.log("Registering middleware: express.static for", path.join(__dirname, "docs"));
 app.use(express.static(path.join(__dirname, "docs")));
 
-// Mongoose connection
-import mongoose from "mongoose";
-
-console.log("Connecting to MongoDB...");
+// MongoDB connection
 mongoose
-    .connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/petbag', {
+    .connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/petbag", {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
@@ -31,26 +28,26 @@ mongoose
         process.exit(1);
     });
 
-console.log("Registering route: GET /api/test");
+// --- Routes ---
+
+// Health check
 app.get("/api/test", (req, res) => {
     res.json({ ok: true });
 });
 
-console.log("Registering route: GET /api/pets");
+// List active pets
 app.get("/api/pets", async (req, res) => {
+    console.log("GET /api/pets query:", req.query);
     try {
-        const { sort, search } = req.query;
+        const { sort, search, petType } = req.query;
         const filter = { status: "active" };
 
-        if (search) {
-            filter.petName = { $regex: search, $options: "i" };
-        }
+        if (search) filter.petName = { $regex: search, $options: "i" };
+        if (petType && ["dog", "cat"].includes(petType)) filter.petType = petType;
 
         let query = Pet.find(filter);
-        const validSortFields = ["petName", "petAge", "daysStay"];
-        if (sort && validSortFields.includes(sort)) {
-            query = query.sort({ [sort]: 1 });
-        }
+        const validSort = ["petName", "petAge", "daysStay"];
+        if (sort && validSort.includes(sort)) query = query.sort({ [sort]: 1 });
 
         const pets = await query.exec();
         res.json(pets);
@@ -60,7 +57,19 @@ app.get("/api/pets", async (req, res) => {
     }
 });
 
-console.log("Registering route: POST /api/pets");
+// Get a single pet
+app.get("/api/pets/:id", async (req, res) => {
+    try {
+        const pet = await Pet.findById(req.params.id);
+        if (!pet) return res.status(404).json({ error: "Pet not found." });
+        res.json(pet);
+    } catch (err) {
+        console.error("Error in GET /api/pets/:id:", err);
+        res.status(500).json({ error: "Failed to fetch pet." });
+    }
+});
+
+// Admit a new pet
 app.post("/api/pets", async (req, res) => {
     try {
         console.log("POST /api/pets body:", req.body);
@@ -77,28 +86,24 @@ app.post("/api/pets", async (req, res) => {
     }
 });
 
-console.log("Registering route: GET /api/pets/:id");
-app.get("/api/pets/:id", async (req, res) => {
+// Update a pet
+app.put("/api/pets/:id", async (req, res) => {
     try {
-        const pet = await Pet.findById(req.params.id);
-        if (!pet) {
-            return res.status(404).json({ error: "Pet not found." });
-        }
+        const update = req.body;
+        const pet = await Pet.findByIdAndUpdate(req.params.id, update, { new: true });
+        if (!pet) return res.status(404).json({ error: "Pet not found." });
         res.json(pet);
     } catch (err) {
-        console.error("Error in GET /api/pets/:id:", err);
-        res.status(500).json({ error: "Failed to fetch pet." });
+        console.error("Error in PUT /api/pets/:id:", err);
+        res.status(500).json({ error: "Failed to update pet." });
     }
 });
 
-console.log("Registering route: DELETE /api/pets/:id");
+// Check out a pet
 app.delete("/api/pets/:id", async (req, res) => {
     try {
-        const { id } = req.params;
-        const pet = await Pet.findById(id);
-        if (!pet) {
-            return res.status(404).json({ error: "Pet not found." });
-        }
+        const pet = await Pet.findById(req.params.id);
+        if (!pet) return res.status(404).json({ error: "Pet not found." });
         pet.status = "checkedOut";
         await pet.save();
         res.json({ message: "Pet checked out." });
@@ -108,28 +113,75 @@ app.delete("/api/pets/:id", async (req, res) => {
     }
 });
 
-console.log("Registering route: PUT /api/pets/:id");
-app.put("/api/pets/:id", async (req, res) => {
+// Get waitlist entries
+app.get("/api/waitlist", async (req, res) => {
     try {
-        const { id } = req.params;
-        const update = req.body;
-        const pet = await Pet.findByIdAndUpdate(id, update, { new: true });
-        if (!pet) {
-            return res.status(404).json({ error: "Pet not found." });
-        }
-        res.json(pet);
+        const list = await Waitlist.find().sort({ requestedAt: 1 }).exec();
+        res.json(list);
     } catch (err) {
-        console.error("Error in PUT /api/pets/:id:", err);
-        res.status(500).json({ error: "Failed to update pet." });
+        console.error("Error in GET /api/waitlist:", err);
+        res.status(500).json({ error: "Failed to fetch waitlist." });
     }
 });
 
-console.log("Registering catch-all route: GET *");
+// Add to waitlist
+app.post("/api/waitlist", async (req, res) => {
+    try {
+        console.log("POST /api/waitlist body:", req.body);
+        const entry = new Waitlist(req.body);
+        await entry.save();
+        res.status(201).json(entry);
+    } catch (err) {
+        console.error("Error in POST /api/waitlist:", err);
+        res.status(500).json({ error: "Failed to add to waitlist." });
+    }
+});
+
+// Remove a waitlist entry
+app.delete("/api/waitlist/:id", async (req, res) => {
+    try {
+        await Waitlist.findByIdAndDelete(req.params.id);
+        res.sendStatus(204);
+    } catch (err) {
+        console.error("Error in DELETE /api/waitlist/:id:", err);
+        res.status(500).json({ error: "Failed to remove waitlist entry." });
+    }
+});
+
+// Admit from waitlist (move to active + delete from waitlist)
+app.post("/api/waitlist/:id/admit", async (req, res) => {
+    try {
+        const entry = await Waitlist.findById(req.params.id);
+        if (!entry) return res.status(404).json({ error: "Waitlist entry not found." });
+
+        // Create a new Pet
+        const pet = new Pet({
+            petType: entry.petType,
+            petName: entry.petName,
+            petAge: entry.petAge,
+            daysStay: entry.daysStay,
+            grooming: entry.grooming,
+            amountDue: entry.amountDue,
+            status: "active",
+        });
+        await pet.save();
+
+        // Remove from waitlist
+        await entry.deleteOne();
+
+        res.json(pet);
+    } catch (err) {
+        console.error("Error in POST /api/waitlist/:id/admit:", err);
+        res.status(500).json({ error: "Failed to admit from waitlist." });
+    }
+});
+
+// Catch-all
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "docs", "index.html"));
 });
 
-console.log("Starting server...");
+// Start server
 app.listen(PORT, () => {
-    console.log("Server running at http://localhost:" + PORT);
+    console.log(`Server running at http://localhost:${PORT}`);
 });

@@ -31,8 +31,9 @@
                 <fieldset>
                     <legend>Grooming Options:</legend>
                     <label><input type="checkbox" name="grooming" value="bath" /> Bath</label>
-                    <label><input type="checkbox" name="grooming" value="nail trim" /> Nail Trim</label>
+                    <label><input type="checkbox" name="grooming" value="nails" /> Nail Trim</label>
                     <label><input type="checkbox" name="grooming" value="haircut" /> Haircut</label>
+                    <label><input type="checkbox" name="grooming" value="teeth" /> Teeth Cleaning</label>
                 </fieldset>
                 <button type="submit">Admit Pet</button>
             </form>
@@ -41,17 +42,32 @@
         <!-- Search and Sort Section -->
         <section class="card" id="search-sort-section">
             <h2>Find Active Pets</h2>
+
+            <!-- Search box -->
             <input type="text" id="searchInput" placeholder="Search by pet name" />
+
+            <!-- Sort dropdown -->
+            <label for="sortSelect">Sort by:</label>
             <select id="sortSelect">
-                <option value="">Sort by...</option>
+                <option value="">Sort by…</option>
                 <option value="petName">Name</option>
                 <option value="petAge">Age</option>
                 <option value="daysStay">Days Stay</option>
             </select>
+
+            <!-- Type filter dropdown -->
+            <label for="typeFilter">Show:</label>
+            <select id="typeFilter">
+                <option value="">All Types</option>
+                <option value="dog">Dogs</option>
+                <option value="cat">Cats</option>
+            </select>
+
+            <!-- Search button -->
             <button id="searchBtn" type="button">Search</button>
         </section>
 
-        <!-- Pet List Section -->
+        <!-- Active Pet List Section -->
         <section class="card" id="pet-list-section">
             <h2>Active Pets</h2>
             <button id="showPetsBtn" type="button">Show Active Pets</button>
@@ -60,11 +76,22 @@
             </div>
         </section>
 
+        <!-- Waitlist Section -->
+        <section class="card" id="waitlist-section">
+            <h2>Waitlist</h2>
+            <ul id="waitlist-list">
+                <!-- JS will inject waitlist entries here -->
+            </ul>
+        </section>
+
+
     </main>
     <footer>
         © 2025 Barkside Boarding & Spa
     </footer>
+
     <script type="module" src="app.js"></script>
+
     <!-- Spa Services Modal -->
     <div id="spaModal" class="modal" style="display:none;">
         <div class="modal-content">
@@ -78,5 +105,26 @@
             </form>
         </div>
     </div>
+
+    <!-- Waitlist Modal -->
+    <div id="waitlistModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:400px;">
+            <span id="waitlistClose" class="close">&times;</span>
+            <h2>No Room Available</h2>
+            <p>Boarding at capacity. Please leave a phone number so we can call when a space opens up.</p>
+            <form id="waitlistForm">
+                <label for="waitPetName">Pet Name:</label>
+                <input type="text" id="waitPetName" required />
+
+                <label for="waitPhone">Client Phone #:</label>
+                <input type="tel" id="waitPhone" placeholder="555-123-4567" required />
+
+                <button type="submit">Join Waitlist</button>
+            </form>
+        </div>
+    </div>
+
 </body>
 </html>
+
+
