@@ -55,9 +55,8 @@ app.use(xssClean());
 app.use(hpp());
 app.use(
     cors({
-        origin: 'https://barksidepetboarding.netlify.app/',
+        origin: '*',
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
-        credentials: true
     })
 );
 app.disable('x-powered-by');
