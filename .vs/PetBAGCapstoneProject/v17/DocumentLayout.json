@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\elyss\\OneDrive\\Desktop\\Capstone\\Project\\lissiemarie.github.io\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{00204629-AA78-CC76-D01F-8AEBED0A544E}|PetBAGCapstoneProject.esproj|c:\\users\\elyss\\onedrive\\desktop\\capstone\\project\\lissiemarie.github.io\\docs\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{00204629-AA78-CC76-D01F-8AEBED0A544E}|PetBAGCapstoneProject.esproj|solutionrelative:docs\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{00204629-AA78-CC76-D01F-8AEBED0A544E}|PetBAGCapstoneProject.esproj|c:\\users\\elyss\\onedrive\\desktop\\capstone\\project\\lissiemarie.github.io\\server.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
       "RelativeMoniker": "D:0:0:{00204629-AA78-CC76-D01F-8AEBED0A544E}|PetBAGCapstoneProject.esproj|solutionrelative:server.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00204629-AA78-CC76-D01F-8AEBED0A544E}|PetBAGCapstoneProject.esproj|c:\\users\\elyss\\onedrive\\desktop\\capstone\\project\\lissiemarie.github.io\\docs\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{00204629-AA78-CC76-D01F-8AEBED0A544E}|PetBAGCapstoneProject.esproj|solutionrelative:docs\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{00204629-AA78-CC76-D01F-8AEBED0A544E}|PetBAGCapstoneProject.esproj|c:\\users\\elyss\\onedrive\\desktop\\capstone\\project\\lissiemarie.github.io\\server\\seed.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
@@ -46,7 +46,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 322,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -78,7 +78,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "index.html",
               "DocumentMoniker": "C:\\Users\\elyss\\OneDrive\\Desktop\\Capstone\\Project\\lissiemarie.github.io\\docs\\index.html",
               "RelativeDocumentMoniker": "docs\\index.html",
@@ -99,8 +99,7 @@
               "RelativeToolTip": "docs\\app.js",
               "ViewState": "AgIAAD0BAAAAAAAAAAAawEQBAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-05-30T17:58:41.737Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-30T17:58:41.737Z"
             },
             {
               "$type": "Document",
@@ -112,18 +111,17 @@
               "RelativeToolTip": "server\\seed.js",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-06-01T03:12:55.925Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-01T03:12:55.925Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "server.js",
               "DocumentMoniker": "C:\\Users\\elyss\\OneDrive\\Desktop\\Capstone\\Project\\lissiemarie.github.io\\server.js",
               "RelativeDocumentMoniker": "server.js",
               "ToolTip": "C:\\Users\\elyss\\OneDrive\\Desktop\\Capstone\\Project\\lissiemarie.github.io\\server.js",
               "RelativeToolTip": "server.js",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAANwAAAAaAAAAAAAAAA==",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAADkAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
               "WhenOpened": "2025-05-30T18:00:17.285Z",
               "EditorCaption": ""
