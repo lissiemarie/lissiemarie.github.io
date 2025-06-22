@@ -53,12 +53,14 @@ app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 app.use(mongoSanitize());
 app.use(xssClean());
 app.use(hpp());
-app.use(
-    cors({
-        origin: '*',
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    })
-);
+app.use(cors({
+    origin: [
+        'https://lissiemarie.github.io',
+        'https://barksidepetboarding.netlify.app/
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+}));
+
 app.disable('x-powered-by');
 
 // 4) JSON body parsing and static file serving
