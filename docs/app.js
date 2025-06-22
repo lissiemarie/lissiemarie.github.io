@@ -1,6 +1,5 @@
 // app.js
 
-// pick up the real API base (e.g. from index.html) or default to same origin
 const API_BASE = window.API_BASE || '';
 
 // --- Controls ---
