@@ -1,160 +1,205 @@
-import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
-import mongoose from "mongoose";
+// server.js
 
-import { Pet } from "./server/models/Pet.js";
-import { Waitlist } from "./server/models/Waitlist.js";
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import mongoose from 'mongoose';
+
+mongoose.set('strictQuery', true);
+
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
+import xssClean from 'xss-clean';
+import hpp from 'hpp';
+import cors from 'cors';
+
+import { Pet } from './server/models/Pet.js';
+import { Waitlist } from './server/models/Waitlist.js';
 
 const app = express();
 const PORT = 3000;
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Middleware
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "docs")));
+const MAX_DOGS = 5;
+const MAX_CATS = 5;
 
-// MongoDB connection
-mongoose
-    .connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/petbag", {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    })
-    .then(() => console.log("Connected to MongoDB"))
-    .catch(err => {
-        console.error("MongoDB connection error:", err);
-        process.exit(1);
+// 1) Trust proxy for HTTPS detection
+app.enable('trust proxy');
+
+// 2) Redirect HTTP to HTTPS in production
+if (process.env.NODE_ENV === 'production') {
+    app.use((req, res, next) => {
+        if (req.secure) return next();
+        res.redirect('https://' + req.headers.host + req.url);
     });
+}
 
-// --- Routes ---
+// 3) Security headers and middleware
+app.use(helmet());
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'"],
+            styleSrc: ["'self'", 'https://fonts.googleapis.com'],
+            imgSrc: ["'self'", 'data:'],
+            fontSrc: ["'self'", 'https://fonts.gstatic.com']
+        }
+    })
+);
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+app.use(mongoSanitize());
+app.use(xssClean());
+app.use(hpp());
+app.use(
+    cors({
+        origin: 'https://lissiemarie.github.io',
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        credentials: true
+    })
+);
+app.disable('x-powered-by');
 
-// Health check
-app.get("/api/test", (req, res) => {
+// 4) JSON body parsing and static file serving
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'docs')));
+
+// 5) Health check route
+app.get('/api/test', (req, res) => {
     res.json({ ok: true });
 });
 
-// List active pets
-app.get("/api/pets", async (req, res) => {
-    console.log("GET /api/pets query:", req.query);
+// 6) List active pets with optional sort/search/type filter
+app.get('/api/pets', async (req, res, next) => {
     try {
         const { sort, search, petType } = req.query;
-        const filter = { status: "active" };
-
-        if (search) filter.petName = { $regex: search, $options: "i" };
-        if (petType && ["dog", "cat"].includes(petType)) filter.petType = petType;
-
+        const filter = { status: 'active' };
+        if (search) filter.petName = { $regex: search, $options: 'i' };
+        if (petType) filter.petType = petType;
         let query = Pet.find(filter);
-        const validSort = ["petName", "petAge", "daysStay"];
-        if (sort && validSort.includes(sort)) query = query.sort({ [sort]: 1 });
-
+        const validFields = ['petName', 'petAge', 'daysStay'];
+        if (sort && validFields.includes(sort)) {
+            query = query.sort({ [sort]: 1 });
+        }
         const pets = await query.exec();
         res.json(pets);
     } catch (err) {
-        console.error("Error in GET /api/pets:", err);
-        res.status(500).json({ error: "Failed to fetch pets." });
+        next(err);
     }
 });
 
-// Get a single pet
-app.get("/api/pets/:id", async (req, res) => {
+// 7) Get single pet by ID
+app.get('/api/pets/:id', async (req, res, next) => {
     try {
         const pet = await Pet.findById(req.params.id);
-        if (!pet) return res.status(404).json({ error: "Pet not found." });
+        if (!pet) return res.status(404).json({ error: 'Pet not found.' });
         res.json(pet);
     } catch (err) {
-        console.error("Error in GET /api/pets/:id:", err);
-        res.status(500).json({ error: "Failed to fetch pet." });
+        next(err);
     }
 });
 
-// Admit a new pet
-app.post("/api/pets", async (req, res) => {
+// 8) Admit a new pet
+app.post('/api/pets', async (req, res, next) => {
     try {
-        console.log("POST /api/pets body:", req.body);
         const { petType, petName, petAge, daysStay, grooming = [], amountDue } = req.body;
         if (!petType || !petName || petAge == null || daysStay == null || amountDue == null) {
-            return res.status(400).json({ error: "Missing required pet fields." });
+            return res.status(400).json({ error: 'Missing required fields.' });
         }
-        const newPet = new Pet({ petType, petName, petAge, daysStay, grooming, amountDue, status: "active" });
-        await newPet.save();
-        res.status(201).json(newPet);
+        const pet = new Pet({
+            petType,
+            petName,
+            petAge,
+            daysStay,
+            grooming,
+            amountDue,
+            status: 'active'
+        });
+        await pet.save();
+        res.status(201).json(pet);
     } catch (err) {
-        console.error("Error in POST /api/pets:", err);
-        res.status(500).json({ error: "Failed to admit new pet." });
+        next(err);
     }
 });
 
-// Update a pet
-app.put("/api/pets/:id", async (req, res) => {
+// 9) Update an existing pet
+app.put('/api/pets/:id', async (req, res, next) => {
     try {
-        const update = req.body;
-        const pet = await Pet.findByIdAndUpdate(req.params.id, update, { new: true });
-        if (!pet) return res.status(404).json({ error: "Pet not found." });
+        const pet = await Pet.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!pet) return res.status(404).json({ error: 'Pet not found.' });
         res.json(pet);
     } catch (err) {
-        console.error("Error in PUT /api/pets/:id:", err);
-        res.status(500).json({ error: "Failed to update pet." });
+        next(err);
     }
 });
 
-// Check out a pet
-app.delete("/api/pets/:id", async (req, res) => {
+// 10) Check out (mark pet as checkedOut)
+app.delete('/api/pets/:id', async (req, res, next) => {
     try {
         const pet = await Pet.findById(req.params.id);
-        if (!pet) return res.status(404).json({ error: "Pet not found." });
-        pet.status = "checkedOut";
+        if (!pet) return res.status(404).json({ error: 'Pet not found.' });
+        pet.status = 'checkedOut';
         await pet.save();
-        res.json({ message: "Pet checked out." });
+        res.json({ message: 'Pet checked out.' });
     } catch (err) {
-        console.error("Error in DELETE /api/pets/:id:", err);
-        res.status(500).json({ error: "Failed to check out pet." });
+        next(err);
     }
 });
 
-// Get waitlist entries
-app.get("/api/waitlist", async (req, res) => {
+// 11) List waitlist entries
+app.get('/api/waitlist', async (req, res, next) => {
     try {
         const list = await Waitlist.find().sort({ requestedAt: 1 }).exec();
         res.json(list);
     } catch (err) {
-        console.error("Error in GET /api/waitlist:", err);
-        res.status(500).json({ error: "Failed to fetch waitlist." });
+        next(err);
     }
 });
 
-// Add to waitlist
-app.post("/api/waitlist", async (req, res) => {
+// 12) Add to waitlist
+app.post('/api/waitlist', async (req, res, next) => {
     try {
-        console.log("POST /api/waitlist body:", req.body);
         const entry = new Waitlist(req.body);
         await entry.save();
         res.status(201).json(entry);
     } catch (err) {
-        console.error("Error in POST /api/waitlist:", err);
-        res.status(500).json({ error: "Failed to add to waitlist." });
+        next(err);
     }
 });
 
-// Remove a waitlist entry
-app.delete("/api/waitlist/:id", async (req, res) => {
+// 13) Remove a waitlist entry
+app.delete('/api/waitlist/:id', async (req, res, next) => {
     try {
         await Waitlist.findByIdAndDelete(req.params.id);
         res.sendStatus(204);
     } catch (err) {
-        console.error("Error in DELETE /api/waitlist/:id:", err);
-        res.status(500).json({ error: "Failed to remove waitlist entry." });
+        next(err);
     }
 });
 
-// Admit from waitlist (move to active + delete from waitlist)
-app.post("/api/waitlist/:id/admit", async (req, res) => {
+// 14) Admit from waitlist into active pets (with capacity check)
+app.post('/api/waitlist/:id/admit', async (req, res, next) => {
     try {
         const entry = await Waitlist.findById(req.params.id);
-        if (!entry) return res.status(404).json({ error: "Waitlist entry not found." });
+        if (!entry) {
+            return res.status(404).json({ error: 'Waitlist entry not found.' });
+        }
 
-        // Create a new Pet
+        // Check capacity limits
+        const limit = entry.petType === 'dog' ? MAX_DOGS : MAX_CATS;
+        const activeCount = await Pet.countDocuments({
+            petType: entry.petType,
+            status: 'active'
+        });
+        if (activeCount >= limit) {
+            return res.status(400).json({
+                error: `Cannot admit: active ${entry.petType} capacity full`
+            });
+        }
+
+        // Create new pet from waitlist entry
         const pet = new Pet({
             petType: entry.petType,
             petName: entry.petName,
@@ -162,26 +207,45 @@ app.post("/api/waitlist/:id/admit", async (req, res) => {
             daysStay: entry.daysStay,
             grooming: entry.grooming,
             amountDue: entry.amountDue,
-            status: "active",
+            status: 'active'
         });
         await pet.save();
-
-        // Remove from waitlist
         await entry.deleteOne();
 
         res.json(pet);
     } catch (err) {
-        console.error("Error in POST /api/waitlist/:id/admit:", err);
-        res.status(500).json({ error: "Failed to admit from waitlist." });
+        next(err);
     }
 });
 
-// Catch-all
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "docs", "index.html"));
+// 15) Catch-all to serve index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'docs', 'index.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+// 16) Global error handler
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    const message =
+        process.env.NODE_ENV === 'production'
+            ? 'Internal server error'
+            : err.message;
+    res.status(500).json({ error: message });
 });
+
+// 17) Connect to MongoDB and start server
+mongoose
+    .connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/petbag', {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    })
+    .then(() => {
+        console.log('Connected to MongoDB');
+        app.listen(PORT, () => {
+            console.log(`Server running on http://localhost:${PORT}`);
+        });
+    })
+    .catch(err => {
+        console.error('MongoDB connection error:', err);
+        process.exit(1);
+    });

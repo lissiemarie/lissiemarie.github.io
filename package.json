@@ -9,14 +9,21 @@
     "dev:server": "nodemon server.js",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "serve": "browser-sync start --server docs --files \"docs/**/*.html\" \"docs/css/*.css\" \"docs/js/*.js\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "mongoose": "^6.8.0"
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.5.1",
+    "helmet": "^8.1.0",
+    "hpp": "^0.2.3",
+    "mongoose": "^6.8.0",
+    "xss-clean": "^0.1.4"
   },
   "devDependencies": {
     "browser-sync": "^3.0.4",

@@ -1,5 +1,8 @@
 // app.js
 
+// pick up the real API base (e.g. from index.html) or default to same origin
+const API_BASE = window.API_BASE || '';
+
 // --- Controls ---
 const petListDiv = document.getElementById('pet-list');
 const sortSelect = document.getElementById('sortSelect');
@@ -21,7 +24,7 @@ const waitlistForm = document.getElementById('waitlistForm');
 const waitPetNameInput = document.getElementById('waitPetName');
 const waitPhoneInput = document.getElementById('waitPhone');
 
-// For Spa modal state
+// for Spa modal
 let currentPetId = null;
 let currentPetType = null;
 let currentDaysStay = null;
@@ -38,7 +41,7 @@ async function fetchAndRender() {
     if (sortValue) params.append('sort', sortValue);
 
     try {
-        const res = await fetch('/api/pets?' + params.toString());
+        const res = await fetch(`${API_BASE}/api/pets?${params.toString()}`);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const pets = await res.json();
 
@@ -56,29 +59,38 @@ async function fetchAndRender() {
             if (pet.grooming && pet.grooming.length > 0) {
                 spaServicesHtml = pet.grooming.map(service =>
                     `<li>
-                        Spa: ${service} ($10)
-                        <button class="delete-spa-btn" data-id="${pet._id}" data-service="${service}">Delete</button>
-                    </li>`
+             Spa: ${service} ($10)
+             <button class="delete-spa-btn"
+                     data-id="${pet._id}"
+                     data-service="${service}">
+               Delete
+             </button>
+           </li>`
                 ).join('');
             } else {
                 spaServicesHtml = '<li>No spa services</li>';
             }
 
             card.innerHTML = `
-                <h3>${pet.petName} (${pet.petType})</h3>
-                <p>Age: ${pet.petAge}</p>
-                <p>Stay: ${pet.daysStay} day(s)</p>
-                <div>
-                  <strong>Charges:</strong>
-                  <ul>
-                    <li>Boarding: $${(pet.petType === 'dog' ? 50 : 40) * pet.daysStay}</li>
-                    ${spaServicesHtml}
-                  </ul>
-                  <strong>Total Due: $${pet.amountDue.toFixed(2)}</strong>
-                </div>
-                <button data-id="${pet._id}" class="checkout-btn">Check Out</button>
-                <button data-id="${pet._id}" data-type="${pet.petType}" data-days="${pet.daysStay}" class="spa-btn">Add Spa Services</button>
-            `;
+        <h3>${pet.petName} (${pet.petType})</h3>
+        <p>Age: ${pet.petAge}</p>
+        <p>Stay: ${pet.daysStay} day(s)</p>
+        <div>
+          <strong>Charges:</strong>
+          <ul>
+            <li>Boarding: $${((pet.petType === 'dog') ? 50 : 40) * pet.daysStay}</li>
+            ${spaServicesHtml}
+          </ul>
+          <strong>Total Due: $${pet.amountDue.toFixed(2)}</strong>
+        </div>
+        <button data-id="${pet._id}" class="checkout-btn">Check Out</button>
+        <button data-id="${pet._id}"
+                data-type="${pet.petType}"
+                data-days="${pet.daysStay}"
+                class="spa-btn">
+          Add Spa Services
+        </button>
+      `;
             petListDiv.appendChild(card);
         });
 
@@ -110,7 +122,7 @@ async function fetchAndRender() {
 // --- 2) Fetch & Render Waitlist ---
 async function fetchAndRenderWaitlist() {
     try {
-        const res = await fetch('/api/waitlist');
+        const res = await fetch(`${API_BASE}/api/waitlist`);
         if (!res.ok) throw new Error('Failed to fetch waitlist');
         const list = await res.json();
 
@@ -123,12 +135,13 @@ async function fetchAndRenderWaitlist() {
         list.forEach(entry => {
             const li = document.createElement('li');
             li.innerHTML = `
-                <strong>${entry.petName}</strong> (${entry.petType}, ${entry.petAge}yr) <strong>Length of stay:</strong>    
-                ${entry.daysStay} day(s) 
-                <a href="tel:${entry.phone}">${entry.phone}</a>
-                <button class="admit-wait-btn" data-id="${entry._id}">Admit</button>
-                <button class="remove-wait-btn" data-id="${entry._id}">Remove</button>
-            `;
+        <strong>${entry.petName}</strong>
+        (${entry.petType}, ${entry.petAge}yr)
+        <strong>Length of stay:</strong> ${entry.daysStay} day(s)
+        <a href="tel:${entry.phone}">${entry.phone}</a>
+        <button class="admit-wait-btn"  data-id="${entry._id}">Admit</button>
+        <button class="remove-wait-btn" data-id="${entry._id}">Remove</button>
+      `;
             waitlistList.appendChild(li);
         });
 
@@ -148,7 +161,7 @@ async function fetchAndRenderWaitlist() {
 // --- 3) Remove from Waitlist ---
 async function removeFromWaitlist(id) {
     try {
-        const res = await fetch('/api/waitlist/' + id, { method: 'DELETE' });
+        const res = await fetch(`${API_BASE}/api/waitlist/${id}`, { method: 'DELETE' });
         if (!res.ok) throw new Error('Delete failed');
         fetchAndRenderWaitlist();
     } catch (err) {
@@ -160,27 +173,30 @@ async function removeFromWaitlist(id) {
 // --- 4) Admit from Waitlist ---
 async function admitFromWaitlist(id) {
     try {
-        const res = await fetch('/api/waitlist/' + id + '/admit', { method: 'POST' });
-        if (!res.ok) throw new Error('Admit failed');
-        // refresh both lists
+        const res = await fetch(`${API_BASE}/api/waitlist/${id}/admit`, { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) {
+            alert(data.error);
+            return;
+        }
         fetchAndRender();
         fetchAndRenderWaitlist();
     } catch (err) {
         console.error(err);
-        alert('Error admitting from waitlist');
+        alert('Unexpected error admitting from waitlist');
     }
 }
 
 // --- 5) Delete Spa Service ---
 async function deleteSpaService(petId, service) {
     try {
-        const resPet = await fetch('/api/pets/' + petId);
+        const resPet = await fetch(`${API_BASE}/api/pets/${petId}`);
         if (!resPet.ok) throw new Error('Pet not found');
         const pet = await resPet.json();
+
         const updatedGrooming = (pet.grooming || []).filter(s => s !== service);
         const amountDue = calculateAmount(pet.petType, pet.daysStay, updatedGrooming);
-
-        const res = await fetch('/api/pets/' + petId, {
+        const res = await fetch(`${API_BASE}/api/pets/${petId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ grooming: updatedGrooming, amountDue })
@@ -196,7 +212,7 @@ async function deleteSpaService(petId, service) {
 // --- 6) Check Out Pet ---
 async function checkOut(id) {
     try {
-        const res = await fetch('/api/pets/' + id, { method: 'DELETE' });
+        const res = await fetch(`${API_BASE}/api/pets/${id}`, { method: 'DELETE' });
         if (!res.ok) throw new Error('Check out failed');
         fetchAndRender();
     } catch (err) {
@@ -213,12 +229,14 @@ addForm.addEventListener('submit', async e => {
     const petName = document.getElementById('petName').value.trim();
     const petAge = parseInt(document.getElementById('petAge').value, 10);
     const daysStay = parseInt(document.getElementById('daysStay').value, 10);
-    const grooming = Array.from(document.querySelectorAll('input[name="grooming"]:checked')).map(cb => cb.value);
+    const grooming = Array.from(
+        document.querySelectorAll('input[name="grooming"]:checked')
+    ).map(cb => cb.value);
     const amountDue = calculateAmount(petType, daysStay, grooming);
 
     // capacity check
     try {
-        const resActive = await fetch(`/api/pets?petType=${petType}`);
+        const resActive = await fetch(`${API_BASE}/api/pets?petType=${petType}`);
         const activePets = await resActive.json();
         const limit = 5;
         if (activePets.length >= limit) {
@@ -235,7 +253,7 @@ addForm.addEventListener('submit', async e => {
 
     // admit directly
     try {
-        const res = await fetch('/api/pets', {
+        const res = await fetch(`${API_BASE}/api/pets`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ petType, petName, petAge, daysStay, grooming, amountDue })
@@ -257,12 +275,14 @@ waitlistForm.addEventListener('submit', async e => {
     const petName = waitPetNameInput.value.trim();
     const petAge = parseInt(document.getElementById('petAge').value, 10);
     const daysStay = parseInt(document.getElementById('daysStay').value, 10);
-    const grooming = Array.from(document.querySelectorAll('input[name="grooming"]:checked')).map(cb => cb.value);
+    const grooming = Array.from(
+        document.querySelectorAll('input[name="grooming"]:checked')
+    ).map(cb => cb.value);
     const amountDue = calculateAmount(petType, daysStay, grooming);
     const phone = waitPhoneInput.value.trim();
 
     try {
-        const res = await fetch('/api/waitlist', {
+        const res = await fetch(`${API_BASE}/api/waitlist`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ petType, petName, petAge, daysStay, grooming, amountDue, phone })
@@ -281,7 +301,7 @@ waitlistForm.addEventListener('submit', async e => {
 
 // --- 9) Utility: Calculate Amount ---
 function calculateAmount(petType, daysStay, grooming) {
-    const baseRate = petType === 'dog' ? 50 : 40;
+    const baseRate = (petType === 'dog') ? 50 : 40;
     const groomingCost = grooming.length * 10;
     return baseRate * daysStay + groomingCost;
 }
@@ -307,18 +327,23 @@ if (spaModal && spaModalClose && spaModalForm) {
     spaModalForm.onsubmit = async e => {
         e.preventDefault();
         if (!currentPetId) return;
-        const additional = Array.from(spaModalForm.querySelectorAll('input[name="grooming"]:checked')).map(cb => cb.value);
+        const additional = Array.from(
+            spaModalForm.querySelectorAll('input[name="grooming"]:checked')
+        ).map(cb => cb.value);
         if (additional.length === 0) {
             alert('Select at least one service');
             return;
         }
         try {
-            const resPet = await fetch(`/api/pets/${currentPetId}`);
+            const resPet = await fetch(`${API_BASE}/api/pets/${currentPetId}`);
             if (!resPet.ok) throw new Error('Pet not found');
             const pet = await resPet.json();
-            const updatedGrooming = Array.from(new Set([...(pet.grooming || []), ...additional]));
+            const updatedGrooming = Array.from(
+                new Set([...(pet.grooming || []), ...additional])
+            );
             const amountDue = calculateAmount(pet.petType, pet.daysStay, updatedGrooming);
-            const res = await fetch(`/api/pets/${currentPetId}`, {
+
+            const res = await fetch(`${API_BASE}/api/pets/${currentPetId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ grooming: updatedGrooming, amountDue })
