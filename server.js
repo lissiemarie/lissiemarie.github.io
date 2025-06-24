@@ -56,7 +56,7 @@ app.use(hpp());
 app.use(cors({
     origin: [
         'https://lissiemarie.github.io',
-        'https://barksidepetboarding.netlify.app/
+        'https://barksidepetboarding.netlify.app/'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
